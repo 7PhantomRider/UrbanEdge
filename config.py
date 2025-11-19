@@ -1,0 +1,17 @@
+#speed
+CAR_BASE_SPEED = 45
+BIKE_BASE_SPEED = 25
+
+#traffic
+TRAFFIC_LIGHT_LAMBDA = 1/30   # średnio 30s oczekiwania
+
+#korki
+TRAFFIC_DELAY_MIN = 0
+TRAFFIC_DELAY_MAX = 20
+
+#Parking
+PARKING_LAMBDA_CAR = 1/60
+PARKING_LAMBDA_BIKE = 1/5
+
+#n liczba symulacji
+N_SIMULATIONS = 1
