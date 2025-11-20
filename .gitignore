@@ -1,5 +1,8 @@
 cache/
 env/
+*.out
+.idea/
+.vscode/
 
 # Python-generated files
 __pycache__/
@@ -12,3 +15,5 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
+env/
