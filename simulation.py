@@ -1,49 +1,1 @@
-import random
-import numpy as np
-from config import *
-
-
-def draw_traffic_light_delay():
-    return np.random.exponential(1 / TRAFFIC_LIGHT_LAMBDA)
-
-
-def draw_traffic_congestion_delay():
-    return random.uniform(TRAFFIC_DELAY_MIN, TRAFFIC_DELAY_MAX)
-
-
-def draw_parking_time(vehicle_type):
-    if vehicle_type == "car":
-        return np.random.exponential(1 / PARKING_LAMBDA_CAR)
-    else:
-        return np.random.exponential(1 / PARKING_LAMBDA_BIKE)
-
-
-def estimate_time(G, route, base_speed_kmh, vehicle_type):
-    total = 0
-
-    for u, v in zip(route[:-1], route[1:]):
-        data = G[u][v][0]
-        length = data.get("length", 0)
-
-        # prędkość
-        maxspeed = data.get("maxspeed")
-
-        try:
-            speed = float(maxspeed)
-        except:
-            speed = base_speed_kmh
-
-        speed_m_s = speed * 1000 / 3600
-
-        if speed_m_s == 0:
-            continue
-
-        total += length / speed_m_s
-
-        total += draw_traffic_light_delay()
-
-        total += draw_traffic_congestion_delay()
-
-        total += draw_parking_time(vehicle_type)
-
-    return total
+import randomimport numpy as npfrom config import (    TRAFFIC_LIGHT_LAMBDA,    TRAFFIC_DELAY_MIN,    TRAFFIC_DELAY_MAX,    PARKING_LAMBDA_CAR,    PARKING_LAMBDA_BIKE,)def draw_traffic_light_delay():    return np.random.exponential(1 / TRAFFIC_LIGHT_LAMBDA)def draw_traffic_congestion_delay():    return random.uniform(TRAFFIC_DELAY_MIN, TRAFFIC_DELAY_MAX)def draw_parking_time(vehicle_type):    if vehicle_type == "car":        return np.random.exponential(1 / PARKING_LAMBDA_CAR)    return np.random.exponential(1 / PARKING_LAMBDA_BIKE)def estimate_time(G, route, base_speed_kmh, vehicle_type, n_lights):    total = 0    # opóźnienia od realnych świateł    for _ in range(n_lights):        total += draw_traffic_light_delay()    # przejazd + korki    for u, v in zip(route[:-1], route[1:]):        data = G[u][v][0]        length = data.get("length", 0)        maxspeed = data.get("maxspeed")        try:            speed = float(maxspeed)        except:            speed = base_speed_kmh        speed_m_s = speed * 1000 / 3600        if speed_m_s == 0:            continue        total += length / speed_m_s        total += draw_traffic_congestion_delay()    # parkowanie na końcu    total += draw_parking_time(vehicle_type)    return total
