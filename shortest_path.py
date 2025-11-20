@@ -55,4 +55,4 @@ def shortest_path(G: networkx.classes.multidigraph.MultiDiGraph, start:int, end:
     path_length = distances[end]
 
 
-    return path, path_length
+    return (path, path_length)
