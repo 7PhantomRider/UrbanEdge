@@ -1,1 +1,0 @@
-max speed po edge'ach, a nie po całości dystansu

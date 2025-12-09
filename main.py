@@ -1,51 +1,45 @@
 import osmnx as ox
-import networkx as nx
 import random
 import matplotlib.pyplot as plt
-from shapely.geometry import Point
 
 from shortest_path import shortest_path
 from simulation import estimate_time
 from config import CAR_BASE_SPEED, BIKE_BASE_SPEED
+from shapely.geometry import LineString
+import geopandas as gpd
 
 
-def count_lights_on_route(G, route, lights_gdf, dist=20):
-    """
-    sprawdzić, czy zliczamy dobrze światła. nie działa 😭
-    """
-    count = 0
-    for node in route:
-        x = G.nodes[node]["x"]
-        y = G.nodes[node]["y"]
-        p = Point(x, y)
+def count_lights_on_route(G, route, lights_gdf, dist=2.5):
+    # GDF to CRS
+    coords = [(G.nodes[n]["x"], G.nodes[n]["y"]) for n in route]
+    edges = [LineString((coords[i], coords[i + 1])) for i in range(len(coords) - 1)]
+    edges_gs = gpd.GeoSeries(edges, crs=G.graph["crs"])
 
-        # odległość w METRACH (bo CRS jest projektowany)
-        nearby = lights_gdf.distance(p) < dist
-        if nearby.any():
-            count += 1
-    return int(count/2)
+    utm_crs = edges_gs.estimate_utm_crs()
+    edges_utm = edges_gs.to_crs(utm_crs)
+    lights_utm = lights_gdf.to_crs(utm_crs)
+    
+    # Liczymy światła
+    counted_lights = set()
+    for edge_utm in edges_utm:
+        for idx, light in lights_utm.iterrows():
+            if idx not in counted_lights:
+                if edge_utm.distance(light.geometry) < dist:
+                    counted_lights.add(idx)
+    
+    return len(counted_lights)
 
 
 
-def main(plotting:bool=True) -> tuple[float, float]:
+def main(G, lights, plotting:bool=True, start:int|None=None, end:int|None=None) -> tuple[float, float]:
     nodes = list(G.nodes)
-    start = random.choice(nodes)
-    print(f"start = {start}")
-    end = random.choice(nodes)
-    print(f"end={end}")
-    lights = ox.features_from_place(
-        "Wrocław, Poland",
-        tags={"highway": "traffic_signals"}
-    )
-    lights = lights.to_crs(G.graph["crs"])
-    print("Start:", start)
-    print("Cel:", end)
+    start = random.choice(nodes) if start==None else start
+    end = random.choice(nodes) if end==None else end
+    print(f"start = {start}\nend = {end}")
 
 
     try:
         route, route_length = shortest_path(G, start, end)
-        #route = nx.shortest_path(G, start, end)
-        #route_length = nx.shortest_path_length(G, start, end, weight="length")
     except Exception as e:
         print("nie ma drogi między punktami")
         print(e)
@@ -54,17 +48,18 @@ def main(plotting:bool=True) -> tuple[float, float]:
 
     print("Odległość [m]:", route_length)
 
-    # liczba świateł na trasie (w promieniu 20 m)
-    n_lights = count_lights_on_route(G, route, lights, dist=20)
+    # liczba świateł na trasie (w promieniu <dist> m)
+    n_lights = count_lights_on_route(G, route, lights, dist=2.5)
     print("Liczba świateł na trasie:", n_lights)
 
     car_time = estimate_time(G, route, CAR_BASE_SPEED, "car", n_lights)
     bike_time = estimate_time(G, route, BIKE_BASE_SPEED, "bike", n_lights)
 
     if car_time < bike_time:
-        print("samochód wygrywa")
+        print("Samochód wygrywa")
     else:
-        print("rower wygrywa")
+        print("Rower wygrywa")
+
 
     print("Auto:", round(car_time, 1), "s =", round(car_time / 60, 2), "min")
     print("Rower:", round(bike_time, 1), "s =", round(bike_time / 60, 2), "min")
@@ -87,4 +82,33 @@ def main(plotting:bool=True) -> tuple[float, float]:
 
 
 if __name__ == "__main__":
-    main()
+    miasto = "Poland, Wrocław"
+    print(f"Pobieranie mapy miasta {miasto.split(',')[1].strip()}")
+    ox.settings.use_cache = True # przyśpiesza to działanie kodu
+
+    ## nie usuwać ↓
+    G = ox.graph_from_place(miasto, network_type="drive", simplify=True)
+    lights = ox.features_from_place(
+        miasto,
+        tags={"highway": "traffic_signals"}
+    )
+    lights = lights.to_crs(G.graph["crs"])
+    ## nie usuwać ↑
+
+
+    # import csv
+    # a =[]
+    # for x in range(100):
+    #     a.append(main(G, lights, plotting=False))
+    # with open(f"{miasto.split(',')[1].strip()}.csv", "w", newline="") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["car_time_s", "bike_time_s", "did_car_won"])
+    #     for car_time, bike_time in a:
+    #         writer.writerow([car_time, bike_time, car_time>bike_time])
+    # exit()
+
+    # dla wrocławia
+    main(G, lights, plotting=True, start = 3284135585, end = 151334702)
+
+    # losowy jeden przypadek:
+    # main(G, lights, plotting=True)
