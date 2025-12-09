@@ -97,13 +97,13 @@ if __name__ == "__main__":
 
 
     # import csv
-    # a =[]
+    # simulation_times = []
     # for x in range(100):
-    #     a.append(main(G, lights, plotting=False))
+    #     simulation_times.append(main(G, lights, plotting=False))
     # with open(f"{miasto.split(',')[1].strip()}.csv", "w", newline="") as f:
     #     writer = csv.writer(f)
     #     writer.writerow(["car_time_s", "bike_time_s", "did_car_won"])
-    #     for car_time, bike_time in a:
+    #     for car_time, bike_time in simulation_times:
     #         writer.writerow([car_time, bike_time, car_time>bike_time])
     # exit()
 
