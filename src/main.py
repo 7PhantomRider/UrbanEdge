@@ -7,8 +7,7 @@ from simulation import estimate_time
 from config import CAR_BASE_SPEED, BIKE_BASE_SPEED
 from shapely.geometry import LineString
 import geopandas as gpd
-import logging
-logger = logging.getLogger(__name__)
+
 
 def count_lights_on_route(G, route, lights_gdf, dist=2.5):
     # GDF to CRS
@@ -32,37 +31,38 @@ def count_lights_on_route(G, route, lights_gdf, dist=2.5):
 
 
 
-def main(G, lights, plotting:bool=False, start:int|None=None, end:int|None=None) -> tuple[float, float]:
+def main(G, lights, plotting:bool=True, start:int|None=None, end:int|None=None) -> tuple[float, float]:
     nodes = list(G.nodes)
     start = random.choice(nodes) if start==None else start
     end = random.choice(nodes) if end==None else end
-    logging.info(f"start = {start}\nend = {end}")
+    print(f"start = {start}\nend = {end}")
 
 
     try:
         route, route_length = shortest_path(G, start, end)
     except Exception as e:
-        logging.warning("nie ma drogi między punktami", e)
+        print("nie ma drogi między punktami")
+        print(e)
         return (float("inf"), float("inf"))
 
 
-    logging.info("Odległość [m]:", route_length)
+    print("Odległość [m]:", route_length)
 
     # liczba świateł na trasie (w promieniu <dist> m)
     n_lights = count_lights_on_route(G, route, lights, dist=2.5)
-    logging.info("Liczba świateł na trasie:", n_lights)
+    print("Liczba świateł na trasie:", n_lights)
 
     car_time = estimate_time(G, route, CAR_BASE_SPEED, "car", n_lights)
     bike_time = estimate_time(G, route, BIKE_BASE_SPEED, "bike", n_lights)
 
     if car_time < bike_time:
-        logging.info("Samochód wygrywa")
+        print("Samochód wygrywa")
     else:
-        logging.info("Rower wygrywa")
+        print("Rower wygrywa")
 
 
-    logging.info("Auto:", round(car_time, 1), "s =", round(car_time / 60, 2), "min")
-    logging.info("Rower:", round(bike_time, 1), "s =", round(bike_time / 60, 2), "min")
+    print("Auto:", round(car_time, 1), "s =", round(car_time / 60, 2), "min")
+    print("Rower:", round(bike_time, 1), "s =", round(bike_time / 60, 2), "min")
 
     # rysowanie
     if plotting:
@@ -83,7 +83,7 @@ def main(G, lights, plotting:bool=False, start:int|None=None, end:int|None=None)
 
 if __name__ == "__main__":
     miasto = "Poland, Wrocław"
-    logging.info(f"Pobieranie mapy miasta {miasto.split(',')[1].strip()}")
+    print(f"Pobieranie mapy miasta {miasto.split(',')[1].strip()}")
     ox.settings.use_cache = True # przyśpiesza to działanie kodu
 
     ## nie usuwać ↓
