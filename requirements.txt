@@ -1,4 +1,6 @@
-osmnx
-networkx
-matplotlib
-numpy
+osmnx~=2.0.6
+networkx~=3.5
+matplotlib~=3.10.7
+numpy~=2.3.5
+shapely~=2.1.2
+geopandas~=1.1.1
