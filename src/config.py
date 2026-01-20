@@ -1,6 +1,6 @@
 #speed
-CAR_BASE_SPEED = 45
-BIKE_BASE_SPEED = 25
+CAR_BASE_SPEED = 50
+BIKE_BASE_SPEED = 18
 
 #traffic
 TRAFFIC_LIGHT_LAMBDA = 1/30   # średnio 30s oczekiwania
