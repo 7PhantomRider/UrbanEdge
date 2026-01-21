@@ -46,7 +46,7 @@ plt.axhline(0, color='red', linestyle='--', linewidth=1) # Linia zero
 plt.title("Przewaga czasowa roweru w zależności od liczby świateł")
 plt.xlabel("Liczba świateł na trasie")
 plt.ylabel("Zysk czasowy roweru (Car - Bike) [s]")
-plt.text(1, 10, "Powyżej 0 = Rower wygrywa", color='green')
+plt.text(1, 10, "Powyżej 0 = Rower wygrywa", color='blue')
 plt.savefig("wykres_lights.png")
 print("Zapisano: wykres_lights.png")
 
@@ -56,3 +56,50 @@ sns.barplot(data=df_melt, x='scenario', y='Time', hue='Vehicle', ci=None, palett
 plt.title("Średni czas przejazdu: Szczyt vs Poza Szczytem")
 plt.savefig("wykres_bar.png")
 print("Zapisano: wykres_bar.png")
+
+#Wykres 4: SZCZYT : Dystans vs Czas
+plt.figure(figsize=(10, 6))
+#tylko dla peak
+peak_data = df[df['scenario'] == 'PEAK']
+
+#dwa linie trendu na jednym wykresie
+#samochód
+sns.regplot(data=peak_data, x='distance_m', y='car_time_s', 
+            scatter_kws={'alpha':0.3}, line_kws={'color':'#ff3d27'}, 
+            color='#ff3d27', label='Auto', ci=None)
+
+#rower
+sns.regplot(data=peak_data, x='distance_m', y='bike_time_s', 
+            scatter_kws={'alpha':0.3}, line_kws={'color':'#00b7ff'}, 
+            color='#00b7ff', label='Rower', ci=None)
+
+plt.title("Porównanie trendów: Scenariusz godzin szczytu")
+plt.xlabel("Dystans [m]")
+plt.ylabel("Czas podróży [s]")
+plt.legend()
+plt.savefig("wykres_scatter_dist_PEAK.png")
+print("Zapisano: wykres_scatter_dist_PEAK.png")
+
+
+#Wykres 5: POZA SZCZYTEM : Dystans vs Czas
+plt.figure(figsize=(10, 6))
+#tylko dla peak
+peak_data = df[df['scenario'] == 'OFF_PEAK']
+
+#dwa linie trendu na jednym wykresie
+#samochód
+sns.regplot(data=peak_data, x='distance_m', y='car_time_s', 
+            scatter_kws={'alpha':0.3}, line_kws={'color':'#ff3d27'}, 
+            color='#ff3d27', label='Auto', ci=None)
+
+#rower
+sns.regplot(data=peak_data, x='distance_m', y='bike_time_s', 
+            scatter_kws={'alpha':0.3}, line_kws={'color':'#00b7ff'}, 
+            color='#00b7ff', label='Rower', ci=None)
+
+plt.title("Porównanie trendów: Scenariusz poza godzinami szczytu")
+plt.xlabel("Dystans [m]")
+plt.ylabel("Czas podróży [s]")
+plt.legend()
+plt.savefig("wykres_scatter_dist_OFFPEAK.png")
+print("Zapisano: wykres_scatter_dist_OFFPEAK.png")
