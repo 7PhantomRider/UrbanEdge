@@ -1,7 +1,9 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+from statsmodels.stats.weightstats import ztest as ztest
 
 
 df = pd.read_csv("wyniki_symulacji.csv")
@@ -16,16 +18,81 @@ print(df.groupby(['distance_cat', 'scenario'])[['car_time_s', 'bike_time_s']].me
 
 # weryfiukacja, Tstudent dla KRÓTKIEGO dystansu w SZCZYCIE
 short_peak = df[(df['distance_cat'] == 'SHORT') & (df['scenario'] == 'PEAK')]
-t_stat, p_val = stats.ttest_rel(short_peak['car_time_s'], short_peak['bike_time_s'])
+if np.mean(short_peak['car_time_s']) < np.mean(short_peak['bike_time_s']):
+    alternatywa="smaller"
+else:
+    alternatywa="larger"
+
+z_stat, p_val = ztest(short_peak['car_time_s']-short_peak['bike_time_s'], usevar="unequal",alternative=alternatywa)
 
 print("\nWeryfikacja HIPOTEZY 1 (Krótki + Szczyt)")
 print(f"Średni czas Auto: {short_peak['car_time_s'].mean():.2f} s")
 print(f"Średni czas Rower: {short_peak['bike_time_s'].mean():.2f} s")
-print(f"Wynik testu t-Studenta: t={t_stat:.2f}, p-value={p_val:.5f}")
-if p_val < 0.05 and t_stat > 0:
+print(f"Wynik testu Z: z={z_stat:.2f}, p-value={p_val:.5f}")
+if p_val < 0.05:
     print("WNIOSEK: Różnica jest ISTOTNA statystycznie. Rower jest szybszy -> Hipoteza potwierdzona.")
 else:
     print("WNIOSEK: Brak istotnej różnicy.")
+
+#######
+
+# weryfiukacja, Tstudent dla KRÓTKIEGO dystansu w SZCZYCIE
+short_peak = df[(df['distance_cat'] == 'SHORT') & (df['scenario'] == 'OFF_PEAK')]
+if np.mean(short_peak['car_time_s']) < np.mean(short_peak['bike_time_s']):
+    alternatywa="smaller"
+else:
+    alternatywa="larger"
+
+z_stat, p_val = ztest(short_peak['car_time_s']-short_peak['bike_time_s'], usevar="unequal",alternative=alternatywa)
+
+print("\nWeryfikacja HIPOTEZY 2 (Krótki + nieSzczyt)")
+print(f"Średni czas Auto: {short_peak['car_time_s'].mean():.2f} s")
+print(f"Średni czas Rower: {short_peak['bike_time_s'].mean():.2f} s")
+print(f"Wynik testu Z: z={z_stat:.2f}, p-value={p_val:.5f}")
+if p_val < 0.05:
+    print("WNIOSEK: Różnica jest ISTOTNA statystycznie. Rower jest szybszy -> Hipoteza potwierdzona.")
+else:
+    print("WNIOSEK: Brak istotnej różnicy.")
+
+##
+
+# weryfiukacja, Tstudent dla KRÓTKIEGO dystansu w SZCZYCIE
+short_peak = df[(df['distance_cat'] == 'LONG') & (df['scenario'] == 'OFF_PEAK')]
+if np.mean(short_peak['car_time_s']) < np.mean(short_peak['bike_time_s']):
+    alternatywa="smaller"
+else:
+    alternatywa="larger"
+
+z_stat, p_val = ztest(short_peak['car_time_s']-short_peak['bike_time_s'], usevar="unequal",alternative=alternatywa)
+
+print("\nWeryfikacja HIPOTEZY 3 (dlugi  + nieSzczyt)")
+print(f"Średni czas Auto: {short_peak['car_time_s'].mean():.2f} s")
+print(f"Średni czas Rower: {short_peak['bike_time_s'].mean():.2f} s")
+print(f"Wynik testu Z: z={z_stat:.2f}, p-value={p_val:.5f}")
+if p_val < 0.05:
+    print("WNIOSEK: Różnica jest ISTOTNA statystycznie. Rower jest szybszy -> Hipoteza potwierdzona.")
+else:
+    print("WNIOSEK: Brak istotnej różnicy.")
+####
+
+# weryfiukacja, Tstudent dla KRÓTKIEGO dystansu w SZCZYCIE
+short_peak = df[(df['distance_cat'] == 'MEDIUM') & (df['scenario'] == 'OFF_PEAK')]
+if np.mean(short_peak['car_time_s']) < np.mean(short_peak['bike_time_s']):
+    alternatywa="smaller"
+else:
+    alternatywa="larger"
+
+z_stat, p_val = ztest(short_peak['car_time_s']-short_peak['bike_time_s'], usevar="unequal",alternative=alternatywa)
+
+print("\nWeryfikacja HIPOTEZY 4 (Średnie + nieSzczyt)")
+print(f"Średni czas Auto: {short_peak['car_time_s'].mean():.2f} s")
+print(f"Średni czas Rower: {short_peak['bike_time_s'].mean():.2f} s")
+print(f"Wynik testu Z: z={z_stat:.2f}, p-value={p_val:.5f}")
+if p_val < 0.05:
+    print("WNIOSEK: Różnica jest ISTOTNA statystycznie. Rower jest szybszy -> Hipoteza potwierdzona.")
+else:
+    print("WNIOSEK: Brak istotnej różnicy.")
+
 
 #wykresy
 
